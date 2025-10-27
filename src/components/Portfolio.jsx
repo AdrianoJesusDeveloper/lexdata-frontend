@@ -5,7 +5,7 @@ const Portfolio = () => {
     {
       number: "1",
       title: "Finanças & Investimentos",
-      description: "Planejamento financeiro e tributário, modelos de análise de risco e scoring, estudos preditivos de mercado."
+      description: "Planejamento financeiro, tributário, e previdenciário modelos de análise de risco e scoring, estudos preditivos de mercado."
     },
     {
       number: "2",
