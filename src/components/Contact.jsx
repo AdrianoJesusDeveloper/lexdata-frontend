@@ -5,16 +5,53 @@ const Contact = () => {
     name: '',
     email: '',
     company: '',
-    service: '',
-    message: ''
+    service_type: 'consultoria',
+    message: '',
+    phone: ''
   });
+  const [loading, setLoading] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null);
+
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Aqui você integraria com o backend
-    console.log('Dados do formulário:', formData);
-    alert('Mensagem enviada com sucesso! Entraremos em contato em breve.');
-    setFormData({ name: '', email: '', company: '', service: '', message: '' });
+    setLoading(true);
+    setSubmitStatus(null);
+
+    try {
+      const response = await fetch(`${API_URL}/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setSubmitStatus({ type: 'success', message: data.message });
+        setFormData({ 
+          name: '', 
+          email: '', 
+          company: '', 
+          service_type: 'consultoria', 
+          message: '', 
+          phone: '' 
+        });
+      } else {
+        setSubmitStatus({ type: 'error', message: data.message });
+      }
+    } catch (error) {
+      console.error('Erro ao enviar formulário:', error);
+      setSubmitStatus({ 
+        type: 'error', 
+        message: 'Erro ao enviar mensagem. Tente novamente.' 
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -31,6 +68,13 @@ const Contact = () => {
         <p className="section-subtitle">
           Transforme Dados em Decisões Estratégicas
         </p>
+        
+        {/* Status Message */}
+        {submitStatus && (
+          <div className={`status-message ${submitStatus.type}`}>
+            {submitStatus.message}
+          </div>
+        )}
         
         <div className="contact-content">
           <div className="contact-info">
@@ -64,6 +108,7 @@ const Contact = () => {
               value={formData.name}
               onChange={handleChange}
               required
+              disabled={loading}
             />
             <input
               type="email"
@@ -72,6 +117,7 @@ const Contact = () => {
               value={formData.email}
               onChange={handleChange}
               required
+              disabled={loading}
             />
             <input
               type="text"
@@ -80,18 +126,28 @@ const Contact = () => {
               value={formData.company}
               onChange={handleChange}
               required
+              disabled={loading}
+            />
+            <input
+              type="text"
+              name="phone"
+              placeholder="Seu Telefone (opcional)"
+              value={formData.phone}
+              onChange={handleChange}
+              disabled={loading}
             />
             <select
-              name="service"
-              value={formData.service}
+              name="service_type"
+              value={formData.service_type}
               onChange={handleChange}
               required
+              disabled={loading}
             >
-              <option value="">Selecione o serviço de interesse</option>
               <option value="consultoria">Consultoria Estratégica</option>
               <option value="legaltech">Soluções LegalTech</option>
               <option value="financas">Finanças & Investimentos</option>
               <option value="treinamento">Educação & Treinamentos</option>
+              <option value="outro">Outro</option>
             </select>
             <textarea
               name="message"
@@ -100,9 +156,14 @@ const Contact = () => {
               value={formData.message}
               onChange={handleChange}
               required
+              disabled={loading}
             ></textarea>
-            <button type="submit" className="submit-button">
-              Enviar Mensagem
+            <button 
+              type="submit" 
+              className="submit-button"
+              disabled={loading}
+            >
+              {loading ? 'Enviando...' : 'Enviar Mensagem'}
             </button>
           </form>
         </div>
